@@ -1,0 +1,86 @@
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -155,11 +155,15 @@
+ 
+ void __i2c_dw_enable_and_wait(struct dw_i2c_dev *dev, bool enable)
+ {
++	uint32_t enable_status_reg = DW_IC_ENABLE_STATUS;
+ 	int timeout = 100;
+ 
++#if defined(CONFIG_ATH79_MACH_RAMBUTAN)
++	 enable_status_reg = DW_IC_ENABLE;
++#endif
+ 	do {
+ 		__i2c_dw_enable(dev, enable);
+-		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) == enable)
++		if ((dw_readl(dev, enable_status_reg) & 1) == enable)
+ 			return;
+ 
+ 		/*
+@@ -180,7 +184,7 @@
+ 	 * Clock is not necessary if we got LCNT/HCNT values directly from
+ 	 * the platform code.
+ 	 */
+-	if (WARN_ON_ONCE(!dev->get_clk_rate_khz))
++	if (WARN_ON_ONCE(!dev->get_clk_rate_khz)) 
+ 		return 0;
+ 	return dev->get_clk_rate_khz(dev);
+ }
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -62,6 +62,9 @@
+ 	if (ret)
+ 		return ret;
+ 
++#if defined(CONFIG_ATH79_MACH_RAMBUTAN)
++	dev_warn(dev->dev, "Device is Rambutan, skipping ID check\n");
++#else 
+ 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+ 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+ 		/* Configure register endianess access */
+@@ -75,7 +78,7 @@
+ 		i2c_dw_release_lock(dev);
+ 		return -ENODEV;
+ 	}
+-
++#endif
+ 	comp_param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
+ 
+ 	/* Disable the adapter */
+@@ -86,6 +89,11 @@
+ 	sda_falling_time = dev->sda_falling_time ?: 300; /* ns */
+ 	scl_falling_time = dev->scl_falling_time ?: 300; /* ns */
+ 
++#if defined(CONFIG_ATH79_MACH_RAMBUTAN)
++	dev->ss_hcnt = 0x01ab;
++	dev->ss_lcnt = 0x01f3;
++#endif
++
+ 	/* Set SCL timing parameters for standard-mode */
+ 	if (dev->ss_hcnt && dev->ss_lcnt) {
+ 		hcnt = dev->ss_hcnt;
+@@ -101,10 +109,16 @@
+ 					scl_falling_time,
+ 					0);	/* No offset */
+ 	}
++
+ 	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
+ 	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+ 
++#if defined(CONFIG_ATH79_MACH_RAMBUTAN)
++	dev->fs_hcnt = 0x57;
++	dev->fs_lcnt = 0x9f;
++#endif
++
+ 	/* Set SCL timing parameters for fast-mode or fast-mode plus */
+ 	if ((dev->clk_freq == 1000000) && dev->fp_hcnt && dev->fp_lcnt) {
+ 		hcnt = dev->fp_hcnt;
+@@ -123,6 +137,7 @@
+ 					scl_falling_time,
+ 					0);	/* No offset */
+ 	}
++
+ 	dw_writel(dev, hcnt, DW_IC_FS_SCL_HCNT);
+ 	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);

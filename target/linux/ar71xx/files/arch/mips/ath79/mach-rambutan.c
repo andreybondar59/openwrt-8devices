@@ -18,6 +18,7 @@
 #include <asm/mach-ath79/ar71xx_regs.h>
 #include <linux/platform/ar934x_nfc.h>
 #include <linux/ar8216_platform.h>
+#include <linux/platform_data/i2c-designware.h>
 #include <linux/platform_data/phy-at803x.h>
 #include "common.h"
 #include "dev-eth.h"
@@ -30,6 +31,9 @@
 #include "dev-wmac.h"
 #include "machtypes.h"
 #include "pci.h"
+
+#define QCA955X_I2C_BASE (AR71XX_APB_BASE + 0x00018000)
+#define QCA955X_I2C_SIZE 0x100
 
 static struct at803x_platform_data rambutan_ar8032_data = {
 	.has_reset_gpio = 1,
@@ -55,6 +59,33 @@ static struct mdio_board_info rambutan_mdio1_info[] = {
 		.bus_id = "ag71xx-mdio.1",
 		.mdio_addr = 0,
 		.platform_data = &rambutan_ar8033_data,
+	},
+};
+
+static struct resource rambutan_i2c_resources[] = {
+	{
+		.start  = QCA955X_I2C_BASE,
+		.end    = QCA955X_I2C_BASE + QCA955X_I2C_SIZE - 1,
+		.flags  = IORESOURCE_MEM,
+	},
+	{
+		.start  = ATH79_MISC_IRQ(24),
+		.end    = ATH79_MISC_IRQ(24),
+		.flags  = IORESOURCE_IRQ,
+	},
+};
+
+static struct dw_i2c_platform_data rambutan_i2c_pdata = {
+	.i2c_scl_freq	= 100000,
+};
+
+static struct platform_device rambutan_i2c_device = {
+	.name		= "i2c_designware",
+	.id		= -1,
+	.resource	= rambutan_i2c_resources,
+	.num_resources	= ARRAY_SIZE(rambutan_i2c_resources),
+	.dev = {
+		.platform_data	= &rambutan_i2c_pdata,
 	},
 };
 
@@ -112,6 +143,7 @@ static void __init rambutan_setup(void)
 	ath79_register_pci();
 	ath79_register_wmac_simple();
 	platform_device_register(&rambutan_uart1_device);
+	platform_device_register(&rambutan_i2c_device);
 	ath79_register_spi(&rambutan_spi_data, rambutan_spi_info, 3);
 
 	mdiobus_register_board_info(rambutan_mdio0_info,
@@ -137,4 +169,3 @@ static void __init rambutan_setup(void)
 
 MIPS_MACHINE(ATH79_MACH_RAMBUTAN, "RAMBUTAN", "8devices Rambutan board",
 	     rambutan_setup);
-
