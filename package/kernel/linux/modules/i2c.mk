@@ -141,6 +141,7 @@ endef
 
 $(eval $(call KernelPackage,i2c-mux))
 
+
 I2C_MUX_GPIO_MODULES:= \
   CONFIG_I2C_MUX_GPIO:drivers/i2c/muxes/i2c-mux-gpio
 
@@ -171,6 +172,7 @@ define KernelPackage/i2c-mux-pca9541/description
 endef
 
 $(eval $(call KernelPackage,i2c-mux-pca9541))
+
 
 I2C_MUX_PCA954x_MODULES:= \
   CONFIG_I2C_MUX_PCA954x:drivers/i2c/muxes/i2c-mux-pca954x
@@ -209,6 +211,23 @@ endef
 $(eval $(call KernelPackage,i2c-piix4))
 
 
+I2C_DESIGNWARE_MODULES:= \
+  CONFIG_I2C_DESIGNWARE_CORE:drivers/i2c/busses/i2c-designware-core \
+  CONFIG_I2C_DESIGNWARE_PLATFORM:drivers/i2c/busses/i2c-designware-platform
+
+define KernelPackage/i2c-designware
+  $(call i2c_defaults,$(I2C_DESIGNWARE_MODULES),59)
+  TITLE:=Synopsys Designware I2C interfaces
+  DEPENDS:=kmod-i2c-core
+endef
+
+define KernelPackage/i2c-designware/description
+ Support for the Synopsys Designware I2C interfaces, .... TODO
+endef
+
+$(eval $(call KernelPackage,i2c-designware))
+
+
 I2C_SMBUS_MODULES:= \
   CONFIG_I2C_SMBUS:drivers/i2c/i2c-smbus
 
@@ -223,7 +242,6 @@ define KernelPackage/i2c-smbus/description
 endef
 
 $(eval $(call KernelPackage,i2c-smbus))
-
 
 
 I2C_TINY_USB_MODULES:= \
@@ -241,5 +259,4 @@ define KernelPackage/i2c-tiny-usb/description
 endef
 
 $(eval $(call KernelPackage,i2c-tiny-usb))
-
 
