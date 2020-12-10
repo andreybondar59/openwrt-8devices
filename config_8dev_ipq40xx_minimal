@@ -97,3 +97,27 @@ CONFIG_VERSION_NUMBER="v3.2"
 CONFIG_VERSION_PRODUCT=""
 CONFIG_VERSION_REPO="http://pkg.8devices.com/jalapeno/%v"
 CONFIG_VERSION_SUPPORT_URL="https://support.8devices.com/"
+# CONFIG_PACKAGE_luci-app-docker is not set
+CONFIG_PACKAGE_docker-ce=y
+# Kernel features for Docker
+CONFIG_DOCKER_KERNEL_OPTIONS=y
+# CONFIG_DOCKER_SECCOMP is not set
+# CONFIG_DOCKER_RES_SHAPE is not set
+# CONFIG_DOCKER_NET_OVERLAY is not set
+# CONFIG_DOCKER_NET_MACVLAN is not set
+# CONFIG_DOCKER_NET_TFTP is not set
+# CONFIG_DOCKER_STO_EXT4 is not set
+# CONFIG_DOCKER_STO_BTRFS is not set
+CONFIG_PACKAGE_ca-certificates=y
+CONFIG_PACKAGE_cgroupfs-mount=y
+CONFIG_PACKAGE_libdevmapper=y
+CONFIG_PACKAGE_libnetwork=y
+CONFIG_PACKAGE_tini=y
+CONFIG_PACKAGE_iptables-mod-extra=y
+CONFIG_PACKAGE_kmod-br-netfilter=y
+CONFIG_PACKAGE_kmod-ikconfig=y
+CONFIG_PACKAGE_kmod-nf-conntrack-netlink=y
+CONFIG_PACKAGE_kmod-nf-ipvs=y
+# CONFIG_PACKAGE_kmod-nf-ipvs-ftp is not set
+# CONFIG_PACKAGE_kmod-nf-ipvs-sip is not set
+CONFIG_PACKAGE_kmod-veth=y
